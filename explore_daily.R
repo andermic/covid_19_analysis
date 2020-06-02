@@ -2,7 +2,7 @@
 require(data.table)
 require(ggplot2)
 
-setwd('C:\\Users\\hottm\\Desktop\\cv\\Data')
+setwd('C:\\Users\\hottm\\Desktop\\covid_19_analysis\\Data')
 
 #Download latest daily data from GitHub
 github_top_dir = 'raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/'
@@ -52,22 +52,22 @@ data = rbind(data, us_data)
 aoi = as.data.table(t(data.table(
   #c('Hubei', 'China'),
   c('', 'US'),
-  c('', 'Italy'),
-  c('', 'Iran'),
-  c('', 'South Korea'),
-  c('', 'Brazil'),
-  c('', 'Germany'),
-  c('', 'Spain'),
-  c('', 'Sweden')
-  #c('Washington', 'US'),
-  #c('New York', 'US'),
-  #c('New Jersey', 'US'),
-  #c('Oregon', 'US'),
+  #c('', 'Italy'),
+  #c('', 'Iran'),
+  #c('', 'South Korea'),
+  #c('', 'Brazil'),
+  #c('', 'Germany'),
+  #c('', 'Spain'),
+  #c('', 'Sweden')
+  c('Washington', 'US'),
+  c('New York', 'US'),
+  c('New Jersey', 'US'),
+  c('Oregon', 'US')
   #c('Florida', 'US'),
   #c('Louisiana', 'US'),
   #c('Michigan', 'US'),
   #c('Illinois', 'US'),
-  #c('California', 'US'),
+  #c('California', 'US')
   #c('Massachusetts', 'US')
 )))
 colnames(aoi) = colnames(data)[2:3]
@@ -76,11 +76,13 @@ aoi_data = merge(aoi, data, by = c('Province_State', 'Country_Region'))
 aoi_data[, Area := paste0(Province_State, ifelse(Province_State == '', '', ', '), Country_Region)]
 
 #Plot
+cur_metric = 'Deaths'
 cur_metric = 'Confirmed'
-p = ggplot(aoi_data[Day >= as.Date('2020-02-24')][Metric == cur_metric], aes(x = Day, y = Value, color = Area))
+p = ggplot(aoi_data[Day >= as.Date('2020-4-10')][Metric == cur_metric], aes(x = Day, y = Value, color = Area))
+#p = ggplot(aoi_data[Metric == cur_metric], aes(x = Day, y = Value, color = Area))
 p = p + geom_point() + geom_line()
 p = p + scale_x_date(date_breaks = '1 day', minor_breaks = NULL, date_labels = '%b %d')
-p = p + scale_y_log10(breaks = 10^(1:5), labels = c('10', '100', '1k', '10k', '100k'))
+#p = p + scale_y_log10(breaks = 10^(1:5), labels = c('10', '100', '1k', '10k', '100k'))
 p = p + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + ylab(cur_metric)
 p
 
@@ -92,7 +94,7 @@ p = p + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + ylab(cur_metr
 p
 
 
-x=aoi_data[Country_Region=='US' & Province_State=='Washington' & Metric=='Confirmed', Value]
-y=round((x[2:length(x)]/x[1:(length(x)-1)]-1)*100, digits = 1)
-z=round(sapply(1:(length(y)-6), function(i) mean(y[i:(i+6)])), digits=1)
-plot(z)
+cur_data=aoi_data[Country_Region=='US' & Province_State=='' & Metric=='Deaths', Value]
+day_over_day_incr=round((cur_data[2:length(cur_data)]/cur_data[1:(length(cur_data)-1)]-1)*100, digits = 1)
+smoothed_dodi=round(sapply(1:(length(day_over_day_incr)-6), function(i) mean(day_over_day_incr[i:(i+6)])), digits=1)
+plot(smoothed_dodi)

@@ -1,7 +1,7 @@
 require(data.table)
 require(ggplot2)
 
-setwd('C:\\Users\\hottm\\Desktop\\cv\\Data')
+setwd('C:\\Users\\hottm\\Desktop\\covid_19_analysis\\Data')
 
 #Download latest data from GitHub
 github_top_dir   = 'raw.githubusercontent.com/CSSEGISandData/COVID-19/master/'
